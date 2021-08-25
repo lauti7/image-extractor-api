@@ -19,30 +19,6 @@ const downloadAPI = (app: Application): void => {
         return res.status(500);
       });
   });
-
-  router.get('/test', (req: Request, res: Response) => {
-    const weburl = req.query.weburl as string;
-    downloadImage(weburl)
-      .then((downloadedImage) => {
-        console.log('Downloaded Image: ', downloadedImage);
-        const fileType = downloadedImage.contentType.split('/')[1];
-
-        const fileContent = Buffer.from(downloadedImage.image, 'base64');
-        const readStream = new PassThrough();
-        readStream.end(fileContent);
-
-        res.set(
-          'Content-disposition',
-          'attachment; filename=' + `image2.${fileType}`
-        );
-        res.set('Content-Type', downloadedImage.contentType);
-
-        readStream.pipe(res);
-      })
-      .catch((error) => {
-        return res.status(500);
-      });
-  });
 };
 
 export default downloadAPI;
