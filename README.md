@@ -1,4 +1,4 @@
-# Image Scrapper - API
+# Image Extractor - API
 
 Given the URL of the page, list all the images that are being used and allow the user to download them.
 Only works with server side render sites for now.
@@ -17,15 +17,23 @@ Typescript, Express, and Cheerio (will be replaced for Puppeteer)
 
 #### Request
 
-`POST /api/scrape/`
-
-    curl -i -H 'Content-Type: application/json' -d '{"weburl": "YOUR_URL"}' -X POST  http://localhost:{YOUR_HOST}/api/scrape
+`POST /api/extract/`
 
 #### Response
 
 Array of links
 
     {"images": []}
+
+### Download single image
+
+#### Request
+
+`GET /api/download/single?weburl={IMAGE_LINK}`
+
+#### Response
+
+Returns the image. If you make a request from your browser, the image will be displayed.
 
 ## Instalation
 
@@ -41,6 +49,16 @@ cd image-extractor-api
 
 ```bash
 npm install
+```
+
+```bash
+touch .env
+
+vim .env
+
+NODE_ENV=development
+PORT={YOUR_PORT}
+
 ```
 
 ## TODOs:
