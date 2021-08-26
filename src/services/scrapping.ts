@@ -1,13 +1,16 @@
 import request from 'request';
 import cheerio from 'cheerio';
+import { Image } from '../utils/interfaces';
 
-type HrefType = 'url' | 'server-folder' | 'without-protocol';
+type srcType = 'url' | 'server-folder' | 'without-protocol';
 
-const checkIsTrkPixel = (imgNodeAttrs: {
+interface ImageInfo {
   src: string;
   width: string;
   height: string;
-}): boolean => {
+}
+
+const checkIsTrkPixel = (imgNodeAttrs: ImageInfo): boolean => {
   const gifExtension = new RegExp(/\.(gif)$/);
   if (gifExtension.test(imgNodeAttrs.src)) {
     if (imgNodeAttrs.width != '' || imgNodeAttrs.height != '') {
@@ -34,7 +37,7 @@ const cleanServerFolder = (str: string): string => {
   return str.replace(/\..\//g, '/');
 };
 
-const checkHref = (str: string): HrefType => {
+const checkSource = (str: string): srcType => {
   const regularURLRegex = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)/
   );
@@ -60,59 +63,125 @@ const checkExtension = (str: string): boolean => {
   return false;
 };
 
-const prepareImageURL = () => {};
+const prepareImageLink = (
+  websiteURL: string,
+  imageSource: srcType,
+  imageLink: string
+): string => {
+  const { protocol, host } = new URL(websiteURL);
+  let finalImageURL = '';
+
+  switch (imageSource) {
+    case 'without-protocol':
+      finalImageURL = `http:${imageLink}`;
+      break;
+    case 'server-folder':
+      const cleanLink = cleanServerFolder(imageLink);
+      finalImageURL = `${protocol}//${host}${cleanLink}`;
+      break;
+    default:
+      finalImageURL = imageLink;
+      break;
+  }
+
+  return finalImageURL;
+};
+
+const getImageType = (imageLink: string): string => {
+  const extensionRegex = new RegExp(/\.(jpg|jpeg|png|gif|svg|webp)$/);
+
+  const matches = imageLink.match(extensionRegex);
+
+  if (matches.length > 0) {
+    return matches[0];
+  }
+};
+
+const getImageNames = (
+  imageLink: string,
+  type: string
+): { name: string; fileName: string } => {
+  const splittedLink = imageLink.split('/');
+  const fileName = splittedLink[splittedLink.length - 1];
+
+  const imageName = fileName.split(type)[0];
+
+  console.log('names: ', imageLink, splittedLink, fileName, imageName);
+
+  return {
+    name: imageName,
+    fileName: fileName,
+  };
+};
+
+const getImage = (imageLink: string): Image => {
+  const type = getImageType(imageLink);
+  const imageNames = getImageNames(imageLink, type);
+
+  const image: Image = {
+    type: type,
+    url: imageLink,
+    name: imageNames.name,
+    fileName: imageNames.fileName,
+  };
+
+  return image;
+};
 
 const checkImageNode = (
   requestedURL: string,
   imgNode: cheerio.Cheerio
-): string | null => {
-  const { protocol, host } = new URL(requestedURL);
+): Image | null => {
   const imageLink = imgNode.attr('src');
   const imageWidth = imgNode.attr('width');
   const imageHeight = imgNode.attr('height');
-  let finalImageURL = '';
 
   if (checkExtension(imageLink)) {
-    const imgInfo: { src: string; width: string; height: string } = {
+    const imgInfo: ImageInfo = {
       src: imageLink,
       width: imageWidth,
       height: imageHeight,
     };
     if (!checkIsTrkPixel(imgInfo)) {
-      const hrefType = checkHref(imageLink);
-      console.log('imageLink', imageLink, hrefType);
-      if (hrefType == 'without-protocol') {
-        finalImageURL = `http:${imageLink}`;
-      } else if (hrefType == 'server-folder') {
-        const cleanLink = cleanServerFolder(imageLink);
-        finalImageURL = `${protocol}//${host}${cleanLink}`;
-      } else {
-        finalImageURL = imageLink;
-      }
-    }
+      const imageSource = checkSource(imageLink);
 
-    return finalImageURL;
+      const imagePreparedLink = prepareImageLink(
+        requestedURL,
+        imageSource,
+        imageLink
+      );
+
+      const image = getImage(imagePreparedLink);
+
+      return image;
+    }
   }
 
   return null;
 };
 
-const getAllImages = (url: string): Promise<Array<string>> => {
+const getAllImages = (url: string): Promise<Array<Image>> => {
   return new Promise((resolve, reject) => {
     request(url, (error, res, body) => {
       if (!error) {
         const $ = cheerio.load(body);
-        const imgs: Array<string> = [];
+        const images: Array<Image> = [];
+        const checkedLinks: string[] = [];
 
         const webImgs = $('img');
         webImgs.each((i, img) => {
           const $node = $(img);
-          const checkedImage = checkImageNode(url, $node);
-          if (checkedImage != null) {
-            imgs.push(checkedImage);
+          const $nodeSource = $node.attr('src');
+          if (checkedLinks.indexOf($nodeSource) === -1) {
+            const checkedImage = checkImageNode(url, $node);
+            if (checkedImage != null) {
+              console.log(checkedImage);
+              images.push(checkedImage);
+            }
+            checkedLinks.push($nodeSource);
           }
         });
-        resolve(imgs);
+        resolve(images);
       } else {
         reject(error);
       }
