@@ -5,11 +5,11 @@ const scrappingAPI = (app: Application): void => {
   const router = express.Router();
   app.use('/api/extract', router);
 
-  app.post('/', (req: Request, res: Response) => {
+  router.post('/', (req: Request, res: Response) => {
     const weburl = req.body.weburl;
     getAllImages(weburl)
-      .then((imgs) => {
-        return res.status(200).json({ images: imgs });
+      .then((images) => {
+        return res.status(200).json({ images });
       })
       .catch((error) => {
         console.log(error);
