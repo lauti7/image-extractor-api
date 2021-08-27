@@ -65,7 +65,7 @@ PORT={YOUR_PORT}
 
 - [ ] Replace Cheerio for Puppeteer.
 - [ ] Support for client side render sites.
-- [ ] Add endpoints for downloading scrapped images.
+- [x] Add endpoints for downloading scrapped images.
 - [ ] Allow users to download an optimized version of each scrapped image.
 - [ ] Add tests.
 - [ ] Add Redis cache.
