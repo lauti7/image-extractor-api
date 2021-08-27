@@ -97,32 +97,30 @@ const getImageType = (imageLink: string): string => {
   }
 };
 
-const getImageNames = (
-  imageLink: string,
-  type: string
-): { name: string; fileName: string } => {
+export const getImageInfo = (
+  imageLink: string
+): { name: string; fileName: string; type: string } => {
+  const type = getImageType(imageLink);
   const splittedLink = imageLink.split('/');
   const fileName = splittedLink[splittedLink.length - 1];
 
   const imageName = fileName.split(type)[0];
 
-  console.log('names: ', imageLink, splittedLink, fileName, imageName);
-
   return {
     name: imageName,
     fileName: fileName,
+    type: type,
   };
 };
 
 const getImage = (imageLink: string): Image => {
-  const type = getImageType(imageLink);
-  const imageNames = getImageNames(imageLink, type);
+  const { type, name, fileName } = getImageInfo(imageLink);
 
   const image: Image = {
     type: type,
     url: imageLink,
-    name: imageNames.name,
-    fileName: imageNames.fileName,
+    name: name,
+    fileName: fileName,
   };
 
   return image;
