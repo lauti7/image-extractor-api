@@ -13,8 +13,7 @@ const extractAPI = (app: Application): void => {
           return res.status(200).json({ images });
         })
         .catch((error) => {
-          console.log(error);
-          return res.json({ images: [], error: true });
+          return res.status(500).json({ images: [], error: true });
         });
     } else {
       return res.status(400).json({ images: [], error: true });

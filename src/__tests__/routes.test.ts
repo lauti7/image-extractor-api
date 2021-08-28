@@ -27,13 +27,29 @@ describe('Routes - Extract API', () => {
   });
 
   it('POST / without weburl key - should return 400 with an error key and an empty list of images', (done) => {
-    (getAllImages as jest.Mock).mockResolvedValue(imagesMock);
     request
       .post('/api/extract')
       .type('json')
       .send({})
       .expect('Content-Type', /json/)
       .expect(400)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.body).toMatchObject({ images: [], error: true });
+        done();
+      });
+  });
+
+  it('POST / without weburl key - should return 400 with an error key and an empty list of images', (done) => {
+    (getAllImages as jest.Mock).mockRejectedValue('Server internal error');
+    request
+      .post('/api/extract')
+      .type('json')
+      .send({
+        weburl: 'https://en.wikipedia.org/wiki/Cat',
+      })
+      .expect('Content-Type', /json/)
+      .expect(500)
       .end((err, res) => {
         if (err) return done(err);
         expect(res.body).toMatchObject({ images: [], error: true });
