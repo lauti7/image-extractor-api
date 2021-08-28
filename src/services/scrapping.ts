@@ -1,6 +1,6 @@
 import request from 'request';
 import cheerio from 'cheerio';
-import { Image } from '../utils/interfaces';
+import { ImageResponse } from '../utils/interfaces';
 
 type srcType = 'url' | 'server-folder' | 'without-protocol';
 
@@ -113,10 +113,10 @@ export const getImageInfo = (
   };
 };
 
-const getImage = (imageLink: string): Image => {
+const getImage = (imageLink: string): ImageResponse => {
   const { type, name, fileName } = getImageInfo(imageLink);
 
-  const image: Image = {
+  const image: ImageResponse = {
     type: type,
     url: imageLink,
     name: name,
@@ -129,7 +129,7 @@ const getImage = (imageLink: string): Image => {
 const checkImageNode = (
   requestedURL: string,
   imgNode: cheerio.Cheerio
-): Image | null => {
+): ImageResponse | null => {
   const imageLink = imgNode.attr('src');
   const imageWidth = imgNode.attr('width');
   const imageHeight = imgNode.attr('height');
@@ -158,12 +158,12 @@ const checkImageNode = (
   return null;
 };
 
-const getAllImages = (url: string): Promise<Array<Image>> => {
+export const getAllImages = (url: string): Promise<Array<ImageResponse>> => {
   return new Promise((resolve, reject) => {
     request(url, (error, res, body) => {
       if (!error) {
         const $ = cheerio.load(body);
-        const images: Array<Image> = [];
+        const images: Array<ImageResponse> = [];
         const checkedLinks: string[] = [];
 
         const webImgs = $('img');
@@ -186,5 +186,3 @@ const getAllImages = (url: string): Promise<Array<Image>> => {
     });
   });
 };
-
-export default getAllImages;
