@@ -1,5 +1,5 @@
 import express, { Application, Request, Response } from 'express';
-import getAllImages from '../services/scrapping';
+import { getAllImages } from '../services/scrapping';
 
 const extractAPI = (app: Application): void => {
   const router = express.Router();
