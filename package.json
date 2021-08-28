@@ -8,6 +8,7 @@
     "start:prod": "npm run build && node ./dist/src/index.ts",
     "format": "prettier -w 'src/**/*.ts'",
     "lint": "eslint --fix src/ ",
+    "test": "jest --verbose",
     "build": "npx tsc"
   },
   "keywords": [],
@@ -23,15 +24,20 @@
   "devDependencies": {
     "@types/cheerio": "^0.22.30",
     "@types/express": "^4.17.13",
+    "@types/jest": "^27.0.1",
     "@types/node": "^16.7.1",
     "@types/request": "^2.48.7",
+    "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.29.3",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.1",
+    "jest": "^27.1.0",
     "nodemon": "^2.0.12",
     "prettier": "^2.3.2",
+    "supertest": "^6.1.6",
+    "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
     "typescript": "^4.3.5"
   }
