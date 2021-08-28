@@ -9,6 +9,12 @@ const downloadAPI = (app: Application): void => {
   router.get('/single', (req: Request, res: Response) => {
     const weburl = req.query.weburl as string;
 
+    if (!weburl) {
+      return res
+        .status(400)
+        .json({ error: true, message: 'weburl parameter is missing' });
+    }
+
     downloadImage(weburl)
       .then((downloadedImage) => {
         if (!req.query.forceDownload) {
@@ -16,11 +22,10 @@ const downloadAPI = (app: Application): void => {
           res.set({ 'Content-Length': downloadedImage.image.length });
           return res.send(downloadedImage.image);
         } else {
-          const { type, fileName, name } = downloadedImage;
+          const { type, fileName, name, image } = downloadedImage;
 
-          const fileContent = Buffer.from(downloadedImage.image, 'base64');
           const readStream = new PassThrough();
-          readStream.end(fileContent);
+          readStream.end(image);
 
           res.set(
             'Content-disposition',
@@ -32,7 +37,12 @@ const downloadAPI = (app: Application): void => {
         }
       })
       .catch((error) => {
-        return res.status(500);
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(500).json({
+          error: true,
+          message:
+            'something went wrong while getting your image. Is it the correct url?',
+        });
       });
   });
 };
