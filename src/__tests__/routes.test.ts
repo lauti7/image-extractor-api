@@ -97,6 +97,7 @@ describe('Routes - Download API', () => {
           message:
             'something went wrong while getting your image. Is it the correct url?',
         });
+        done();
       });
   });
 });
