@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start": "nodemon ./src/index.ts",
-    "start:prod": "npm run build && node ./dist/src/index.ts",
+    "dev": "nodemon ./src/index.ts",
+    "start": "npm run build && node ./dist/src/index.ts",
     "format": "prettier -w 'src/**/*.ts'",
     "lint": "eslint --fix src/ ",
     "test": "jest --verbose",
