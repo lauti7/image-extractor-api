@@ -18,6 +18,6 @@ app.get('/api/status', (req: Request, res: Response) => {
 scrappingAPI(app);
 downloadAPI(app);
 
-app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT || 3000, () => {
   console.log('Running');
 });
