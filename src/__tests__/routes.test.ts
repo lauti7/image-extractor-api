@@ -21,12 +21,32 @@ describe('Routes - Extract API', () => {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).toMatchObject({ images: imagesMock });
+        expect(res.body).toEqual({ images: imagesMock, message: '' });
         done();
       });
   });
 
-  it('POST / without weburl key - should return 400 with an error key and an empty list of images', (done) => {
+  it('POST / with weburl which does not have images - should return 200 with an empty list of images and a message ', (done) => {
+    (getAllImages as jest.Mock).mockResolvedValue([]);
+    request
+      .post('/api/extract')
+      .type('json')
+      .send({
+        weburl: 'https://en.wikipedia.org/wiki/Cat',
+      })
+      .expect('Content-Type', /json/)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.body).toEqual({
+          images: [],
+          message: 'no image on your entered URL',
+        });
+        done();
+      });
+  });
+
+  it('POST / without weburl key - should return 400 with an error key, an empty list of images and a message', (done) => {
     request
       .post('/api/extract')
       .type('json')
@@ -35,13 +55,19 @@ describe('Routes - Extract API', () => {
       .expect(400)
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).toMatchObject({ images: [], error: true });
+        expect(res.body).toEqual({
+          images: [],
+          error: true,
+          message: 'weburl is missing',
+        });
         done();
       });
   });
 
-  it('POST / without weburl key - should return 500 with an error key and an empty list of images', (done) => {
-    (getAllImages as jest.Mock).mockRejectedValue('Server internal error');
+  it('POST / with a problem in given URL - should return 500 with an error key, an empty list of images and a message', (done) => {
+    (getAllImages as jest.Mock).mockRejectedValue(
+      new Error('Server internal error')
+    );
     request
       .post('/api/extract')
       .type('json')
@@ -52,7 +78,11 @@ describe('Routes - Extract API', () => {
       .expect(500)
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).toMatchObject({ images: [], error: true });
+        expect(res.body).toEqual({
+          images: [],
+          error: true,
+          message: 'Server internal error',
+        });
         done();
       });
   });
@@ -91,7 +121,7 @@ describe('Routes - Download API', () => {
       .expect(400)
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).toMatchObject({
+        expect(res.body).toEqual({
           error: true,
           message: 'weburl parameter is missing',
         });
@@ -108,7 +138,7 @@ describe('Routes - Download API', () => {
       .expect(500)
       .end((err, res) => {
         if (err) return done(err);
-        expect(res.body).toMatchObject({
+        expect(res.body).toEqual({
           error: true,
           message:
             'something went wrong while getting your image. Is it the correct url?',
