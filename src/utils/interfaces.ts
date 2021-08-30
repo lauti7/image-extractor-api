@@ -1,6 +1,14 @@
-export interface Image {
+interface Image {
   name: string;
   fileName: string;
-  url: string;
   type: string;
+}
+
+export interface ImageResponse extends Image {
+  url: string;
+}
+
+export interface DownloadedImage extends Image {
+  image: Buffer;
+  contentType: string;
 }
