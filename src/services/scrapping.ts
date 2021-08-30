@@ -1,4 +1,4 @@
-import request from 'request';
+import axios from 'axios';
 import cheerio from 'cheerio';
 import { ImageResponse } from '../utils/interfaces';
 
@@ -11,9 +11,9 @@ interface ImageInfo {
 }
 
 const checkIsTrkPixel = (imgNodeAttrs: ImageInfo): boolean => {
-  const gifExtension = new RegExp(/\.(gif)$/);
-  if (gifExtension.test(imgNodeAttrs.src)) {
-    if (imgNodeAttrs.width != '' || imgNodeAttrs.height != '') {
+  const pixelExtension = new RegExp(/\.(gif|png)$/);
+  if (pixelExtension.test(imgNodeAttrs.src)) {
+    if (imgNodeAttrs.width || imgNodeAttrs.height) {
       const widthInt =
         imgNodeAttrs.width != '' ? parseInt(imgNodeAttrs.width) : null;
       const heightInt =
@@ -34,7 +34,7 @@ const checkIsTrkPixel = (imgNodeAttrs: ImageInfo): boolean => {
 };
 
 const cleanServerFolder = (str: string): string => {
-  return str.replace(/\..\//g, '/');
+  return str.replace(/\..\//g, '');
 };
 
 const checkSource = (str: string): srcType => {
@@ -73,11 +73,11 @@ const prepareImageLink = (
 
   switch (imageSource) {
     case 'without-protocol':
-      finalImageURL = `http:${imageLink}`;
+      finalImageURL = `${protocol}${imageLink}`;
       break;
     case 'server-folder':
       const cleanLink = cleanServerFolder(imageLink);
-      finalImageURL = `${protocol}//${host}${cleanLink}`;
+      finalImageURL = `${protocol}//${host}/${cleanLink}`;
       break;
     default:
       finalImageURL = imageLink;
@@ -160,8 +160,10 @@ const checkImageNode = (
 
 export const getAllImages = (url: string): Promise<Array<ImageResponse>> => {
   return new Promise((resolve, reject) => {
-    request(url, (error, res, body) => {
-      if (!error) {
+    axios
+      .get(url)
+      .then((response) => {
+        const body = response.data;
         const $ = cheerio.load(body);
         const images: Array<ImageResponse> = [];
         const checkedLinks: string[] = [];
@@ -173,16 +175,19 @@ export const getAllImages = (url: string): Promise<Array<ImageResponse>> => {
           if (checkedLinks.indexOf($nodeSource) === -1) {
             const checkedImage = checkImageNode(url, $node);
             if (checkedImage != null) {
-              console.log(checkedImage);
               images.push(checkedImage);
             }
             checkedLinks.push($nodeSource);
           }
         });
         resolve(images);
-      } else {
-        reject(error);
-      }
-    });
+      })
+      .catch((responseError) => {
+        if (responseError.response.status >= 400) {
+          reject(new Error('there was an error with your entered URL'));
+        } else {
+          reject(responseError);
+        }
+      });
   });
 };
