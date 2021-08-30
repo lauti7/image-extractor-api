@@ -40,7 +40,7 @@ describe('Routes - Extract API', () => {
       });
   });
 
-  it('POST / without weburl key - should return 400 with an error key and an empty list of images', (done) => {
+  it('POST / without weburl key - should return 500 with an error key and an empty list of images', (done) => {
     (getAllImages as jest.Mock).mockRejectedValue('Server internal error');
     request
       .post('/api/extract')
