@@ -11,3 +11,12 @@ branches:
 
 script:
   - yarn test
+
+deploy:
+  provider: heroku
+  skin-cleanup: true
+  keep-history: true
+  api_key: $API_KEY_HEROKU
+  app: image-extractor-api
+  on:
+    - main
