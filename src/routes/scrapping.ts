@@ -10,13 +10,23 @@ const extractAPI = (app: Application): void => {
     if (weburl) {
       getAllImages(weburl)
         .then((images) => {
-          return res.status(200).json({ images });
+          if (images.length > 0) {
+            return res.status(200).json({ images, message: '' });
+          } else {
+            return res
+              .status(200)
+              .json({ images: [], message: 'no image on your entered URL' });
+          }
         })
-        .catch((error) => {
-          return res.status(500).json({ images: [], error: true });
+        .catch((error: Error) => {
+          return res
+            .status(500)
+            .json({ images: [], error: true, message: error.message });
         });
     } else {
-      return res.status(400).json({ images: [], error: true });
+      return res
+        .status(400)
+        .json({ images: [], error: true, message: 'weburl is missing' });
     }
   });
 };
