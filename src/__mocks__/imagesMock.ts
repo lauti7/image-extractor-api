@@ -10,14 +10,14 @@ export const imagesMock: ImageResponse[] = [
     name: 'image_mock_1',
     fileName: 'image_mock_1.png',
     url: 'http://google.com/image_mock_1.png',
-    type: 'png',
+    type: '.png',
   },
 ];
 
 export const downloadedImageMock: DownloadedImage = {
   image: imageBuffer,
   contentType: 'image/png',
-  type: 'png',
+  type: '.png',
   name: 'image_mock_1',
   fileName: 'image_mock_1.png',
 };

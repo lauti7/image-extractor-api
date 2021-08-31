@@ -1,9 +1,11 @@
 # Image Extractor - API [![Build Status](https://app.travis-ci.com/lauti7/image-extractor-api.svg?branch=main)](https://app.travis-ci.com/lauti7/image-extractor-api)
 
+API for [Image Extractor - Client](https://github.com/lauti7/image-extractor-client)
+
 Given the URL of the page, list all the images that are being used and allow the user to download them.
 Only works with server side render sites for now.
 
-API is online [here](https://image-extractor-api.herokuapp.com/api/status)
+API is online [here](https://image-extractor-api.herokuapp.com/api/status) and its browser client is online [here](https://lauti7.github.io/image-extractor-client/)
 
 ## Built with:
 
