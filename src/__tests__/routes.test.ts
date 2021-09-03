@@ -86,6 +86,25 @@ describe('Routes - Extract API', () => {
         done();
       });
   });
+
+  it('POST / with an invalid url - should return 400 with an error key and a message', (done) => {
+    request
+      .post('/api/extract')
+      .type('json')
+      .send({
+        weburl: '//invalidurl.c',
+      })
+      .expect('Content-Type', /json/)
+      .expect(400)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.body).toEqual({
+          error: true,
+          message: 'weburl parameter is not a valid URL',
+        });
+        done();
+      });
+  });
 });
 
 jest.mock('../services/download');
@@ -142,6 +161,21 @@ describe('Routes - Download API', () => {
           error: true,
           message:
             'something went wrong while getting your image. Is it the correct url?',
+        });
+        done();
+      });
+  });
+
+  it('GET /single with an invalid URL - - should return 400 with an error key and a message', (done) => {
+    (downloadImage as jest.Mock).mockResolvedValue({});
+    request
+      .get('/api/download/single?weburl=//invalidurl.c')
+      .expect(400)
+      .end((err, res) => {
+        if (err) return done(err);
+        expect(res.body).toEqual({
+          error: true,
+          message: 'weburl parameter is not a valid URL',
         });
         done();
       });

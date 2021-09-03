@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import { PassThrough } from 'stream';
 import { downloadImage } from '../services/download';
+import isValidURL from '../utils/isValidURL';
 
 const downloadAPI = (app: Application): void => {
   const router = express.Router();
@@ -13,6 +14,12 @@ const downloadAPI = (app: Application): void => {
       return res
         .status(400)
         .json({ error: true, message: 'weburl parameter is missing' });
+    }
+
+    if (!isValidURL(weburl)) {
+      return res
+        .status(400)
+        .json({ error: true, message: 'weburl parameter is not a valid URL' });
     }
 
     downloadImage(weburl)
