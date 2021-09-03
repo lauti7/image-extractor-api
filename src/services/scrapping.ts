@@ -1,16 +1,9 @@
-import axios from 'axios';
-import cheerio from 'cheerio';
-import { ImageResponse } from '../utils/interfaces';
+import puppeteer from 'puppeteer';
+import { ImageResponse, ImageNodeInfo } from '../utils/interfaces';
 
 type srcType = 'url' | 'server-folder' | 'without-protocol';
 
-interface ImageInfo {
-  src: string;
-  width: string;
-  height: string;
-}
-
-const checkIsTrkPixel = (imgNodeAttrs: ImageInfo): boolean => {
+const checkIsTrkPixel = (imgNodeAttrs: ImageNodeInfo): boolean => {
   const pixelExtension = new RegExp(/\.(gif|png)$/);
   if (pixelExtension.test(imgNodeAttrs.src)) {
     if (imgNodeAttrs.width || imgNodeAttrs.height) {
@@ -128,19 +121,12 @@ const getImage = (imageLink: string): ImageResponse => {
 
 const checkImageNode = (
   requestedURL: string,
-  imgNode: cheerio.Cheerio
+  imgNode: ImageNodeInfo
 ): ImageResponse | null => {
-  const imageLink = imgNode.attr('src');
-  const imageWidth = imgNode.attr('width');
-  const imageHeight = imgNode.attr('height');
+  const imageLink = imgNode.src;
 
   if (checkExtension(imageLink)) {
-    const imgInfo: ImageInfo = {
-      src: imageLink,
-      width: imageWidth,
-      height: imageHeight,
-    };
-    if (!checkIsTrkPixel(imgInfo)) {
+    if (!checkIsTrkPixel(imgNode)) {
       const imageSource = checkSource(imageLink);
 
       const imagePreparedLink = prepareImageLink(
@@ -158,36 +144,44 @@ const checkImageNode = (
   return null;
 };
 
-export const getAllImages = (url: string): Promise<Array<ImageResponse>> => {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(url)
-      .then((response) => {
-        const body = response.data;
-        const $ = cheerio.load(body);
-        const images: Array<ImageResponse> = [];
-        const checkedLinks: string[] = [];
+export const getAllImages = async (url: string): Promise<ImageResponse[]> => {
+  try {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
 
-        const webImgs = $('img');
-        webImgs.each((i, img) => {
-          const $node = $(img);
-          const $nodeSource = $node.attr('src');
-          if (checkedLinks.indexOf($nodeSource) === -1) {
-            const checkedImage = checkImageNode(url, $node);
-            if (checkedImage != null) {
-              images.push(checkedImage);
-            }
-            checkedLinks.push($nodeSource);
-          }
-        });
-        resolve(images);
-      })
-      .catch((responseError) => {
-        if (responseError.response.status >= 400) {
-          reject(new Error('there was an error with your entered URL'));
-        } else {
-          reject(responseError);
+    const response = await page.goto(url);
+
+    if (response.status() >= 400) {
+      throw new Error('there was an error while requesting your entered URL');
+    }
+
+    const websiteImages: Element[] = await page.$$eval(
+      'img[src]',
+      (imgs) => imgs
+    );
+
+    const websiteImagesNodes: ImageNodeInfo[] = websiteImages.map((img) => ({
+      src: img.getAttribute('src'),
+      width: img.getAttribute('width'),
+      height: img.getAttribute('height'),
+    }));
+
+    await browser.close();
+
+    const images: Array<ImageResponse> = [];
+    const checkedLinks: string[] = [];
+    websiteImagesNodes.forEach((imgNode) => {
+      if (checkedLinks.indexOf(imgNode.src) === -1) {
+        const checkedImage = checkImageNode(url, imgNode);
+        if (checkedImage != null) {
+          images.push(checkedImage);
         }
-      });
-  });
+        checkedLinks.push(imgNode.src);
+      }
+    });
+
+    return images;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
