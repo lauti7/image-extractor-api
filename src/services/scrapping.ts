@@ -146,7 +146,9 @@ const checkImageNode = (
 
 export const getAllImages = async (url: string): Promise<ImageResponse[]> => {
   try {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
 
     const response = await page.goto(url);
