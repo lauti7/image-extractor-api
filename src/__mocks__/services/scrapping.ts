@@ -1,5 +1,41 @@
-import { Browser, Page, HTTPResponse } from 'puppeteer';
 import { ImageResponse } from '../../utils/interfaces';
+
+export const HTMLresponseMock = {
+  data: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Mocking html response</h1>
+  <img src="https://google.com/images/image_1.png" alt="">
+  <img src="https://google.com/images/image_2.jpg" alt="">
+
+  <div>
+    <img src="//google.com/images/image_3.svg" alt="">
+  </div>
+
+  <a href="">
+    <img src="../../static/images/thegif.gif"  alt="">
+  </a>
+
+  <img src="https://google.com/images/image_4.webp" alt="">
+
+  <img src="https://google.com/noimage.noimage" >
+
+
+  <img src="https://trackingpixel.com/pixel.gif" width="1" height="1" alt="">
+  <img src="https://trackingpixel.com/pixel2.gif" width="1" alt="">
+  <img src="https://trackingpixel.com/pixel3.gif" height="1" alt="">
+
+</body>
+</html>
+`,
+};
 
 export const URLProblemResponseMock = {
   response: {
@@ -49,106 +85,5 @@ export const imagesMock: ImageResponse[] = [
     url: 'https://google.com/images/image_4.webp',
     name: 'image_4',
     fileName: 'image_4.webp',
-  },
-];
-
-export const puppetteerSuccessResponse = {
-  status: () => 200,
-} as HTTPResponse;
-
-export const puppetteerErrorResponse = {
-  status: () => 500,
-} as HTTPResponse;
-
-export const mockedPuppeteerBrowser = {
-  newPage() {
-    return Promise.resolve(mockedPuppeteerPage);
-  },
-  close() {
-    return Promise.resolve();
-  },
-} as unknown as Browser;
-
-export const mockedPuppeteerPage = {
-  goto(url: string) {
-    return Promise.resolve();
-  },
-  $$eval(selector: string, pageFunction: any) {
-    return Promise.resolve([]);
-  },
-} as unknown as Page;
-
-export const mockedImagesPuppeteer = [
-  {
-    src: 'https://google.com/images/image_1.png',
-    width: '550',
-    height: '150',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: 'https://google.com/images/image_2.jpg',
-    width: '350',
-    height: '50',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: '//google.com/images/image_3.svg',
-    width: '150',
-    height: '250',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: '../../static/images/thegif.gif',
-    width: '530',
-    height: '153',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: '../images/image_4.webp',
-    width: '530',
-    height: '153',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: 'https://google.com/images/trkpixel.png',
-    width: '1',
-    height: '1',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: 'https://google.com/images/trkpixel2.gif',
-    width: '1',
-    height: '',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: 'https://google.com/images/trkpixel3.gif',
-    width: '',
-    height: '1',
-    getAttribute(prop) {
-      return this[prop];
-    },
-  },
-  {
-    src: 'https://google.com/images/noimage.noimage',
-    width: '',
-    height: '',
-    getAttribute(prop) {
-      return this[prop];
-    },
   },
 ];

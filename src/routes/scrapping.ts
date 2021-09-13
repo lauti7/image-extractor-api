@@ -1,6 +1,5 @@
 import express, { Application, Request, Response } from 'express';
 import { getAllImages } from '../services/scrapping';
-import isValidURL from '../utils/isValidURL';
 
 const extractAPI = (app: Application): void => {
   const router = express.Router();
@@ -9,13 +8,6 @@ const extractAPI = (app: Application): void => {
   router.post('/', (req: Request, res: Response) => {
     const weburl = req.body.weburl;
     if (weburl) {
-      if (!isValidURL(weburl)) {
-        return res.status(400).json({
-          error: true,
-          message: 'weburl parameter is not a valid URL',
-        });
-      }
-
       getAllImages(weburl)
         .then((images) => {
           if (images.length > 0) {

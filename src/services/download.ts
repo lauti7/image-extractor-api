@@ -26,10 +26,10 @@ export const downloadImage = (url: string): Promise<DownloadedImage> => {
         }
       })
       .catch((responseError) => {
-        if (responseError.response && responseError.response.status >= 400) {
+        if (responseError.response.status >= 400) {
           reject(new Error('there was an error with your entered URL'));
         } else {
-          reject(new Error('unexpected server error'));
+          reject(responseError);
         }
       });
   });
