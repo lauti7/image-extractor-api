@@ -77,7 +77,7 @@ PORT={YOUR_PORT}
 
 ## TODOs:
 
-- [x] Replace Cheerio for Puppeteer.
+- [] Replace Cheerio for Puppeteer.
 - [x] Support for client side render sites.
 - [x] Add endpoints for downloading scrapped images.
 - [ ] Allow users to download an optimized version of each scrapped image.
